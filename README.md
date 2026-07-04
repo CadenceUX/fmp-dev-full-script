@@ -2,8 +2,8 @@
 
 A [Claude skill](https://docs.claude.ai/skills) for generating a single, comprehensive FileMaker
 Pro script that exercises every resolvable script step and calculation function against a target
-file — built for regression-testing the `claris-filemaker-pro` and `filemaker-xml` skills'
-catalogs, or for producing a working demonstration of the full FileMaker step/function surface.
+file — built for regression-testing FileMaker script/function reference catalogs, or for
+producing a working demonstration of the full FileMaker step/function surface.
 
 Built and maintained by [Darrin Southern](https://www.linkedin.com/in/darrin-southern/) from [CadenceUX](https://cadenceux.com.au).
 
@@ -13,32 +13,32 @@ Built and maintained by [Darrin Southern](https://www.linkedin.com/in/darrin-sou
 
 When this skill is active, Claude will:
 
-- Ask, before generating anything, which optional schema objects (Summary field, repeating
-  field, relationship/table occurrence, value list, container field, configured AI Account)
-  already exist in the target file — rather than assuming a generic file's limitations apply
-- Generate one `Set Variable` step per calculation function (366 of 368 — the 2 exceptions are
-  documented, not silently dropped), using type-matched literal arguments built by tokenizing
-  each parameter name
-- Generate one script step per resolvable step type, sourced from `filemaker-xml`'s verified XML
-  skeletons — never a guessed step ID
-- Flag the known, currently-unresolved issue that the assembled script fails to *save* in Script
-  Workspace ("invalid script step") even after a clean paste, and document the bisection approach
-  to isolate the cause next time
+- **Guide you through setup first** — confirming MBS Plugin (recommended for delivery, not
+  required — see `fmp-dev-orchestrator` for alternatives), creating a blank companion script for
+  `Perform Script`-type steps to reference safely, and confirming the target table has the schema
+  objects (Summary field, repeating field, relationship, value list, container field, layout) a
+  full-coverage script needs — offering ready-to-paste XML for anything missing
+- Generate one `Set Variable` step per calculation function, using type-matched literal
+  arguments built by tokenizing each parameter name
+- Generate one script step per resolvable step type, using verified configured forms for the
+  handful of steps whose default form isn't valid to paste
+- **Deliver both the companion script and the reference script in a single combined paste**
+- **Walk you through a save-and-copy-back verification step** after pasting, to confirm the
+  script actually landed correctly in FileMaker rather than just assuming a clean paste means
+  everything is correct
 
 ## What it does not do
 
-- It is not a general scripting skill — for everyday script authoring, use `fmp-dev-gate`
-- It does not duplicate the `claris-filemaker-pro` function/step catalogs or the `filemaker-xml`
-  XML spec — it reads them live each time, so it never drifts out of sync with those skills
-- It does not claim the generated script actually saves in FileMaker — that's the open issue
-  this skill exists partly to track
+- It is not a general scripting skill — use a general-purpose FileMaker scripting skill for
+  everyday script authoring
+- It does not bundle FileMaker's full function/script-step catalogs or paste-XML format spec —
+  it depends on a FileMaker function/step reference skill and a FileMaker script-XML skill being
+  available (see *Required reference skills* in `SKILL.md`)
 
-## Known issues
+## Limitations
 
-See [`references/known-issues.md`](./references/known-issues.md) for the full, current list:
-the unresolved save failure, the two functions that genuinely can't be faked with a literal in
-the general case, the 9 script steps with no verified XML ID anywhere, and a parameter-classifier
-bug that was found and fixed during this skill's creation (documented so it isn't reintroduced).
+See [`references/limitations.md`](./references/limitations.md) for the current list of functions
+and script steps excluded from a general-case script, and why.
 
 ## Installation
 
@@ -50,18 +50,17 @@ bug that was found and fixed during this skill's creation (documented so it isn'
 
 ## Execution context
 
-Building the full script (368 functions + 225 steps) is a code-execution task. It runs from
+Building the full script (368 functions + 215 steps) is a code-execution task. It runs from
 Claude Code, the Agent SDK, or a Claude.ai session with code execution enabled. It is not
-reliably achievable in a no-code-execution chat session — attempting the full surface by hand is
-exactly how a parameter-classifier bug was introduced during this skill's own creation.
+reliably achievable in a no-code-execution chat session.
 
 ## Contributing
 
 Issues and PRs welcome — particularly:
-- A fix for the "invalid script step" save failure once isolated
-- Coverage for any of the 9 currently-unresolvable script steps, if `filemaker-xml` adds a
-  verified skeleton for one
-- Corrections to the parameter-type classifier in `scripts/build_function_calls.py`
+- Coverage for any of the currently-unresolvable script steps listed in
+  `references/limitations.md`, if a verified paste-ready skeleton becomes available for one
+- Corrections or additions to `references/step-configurations.md`
+- Improvements to the parameter-type classifier in `scripts/build_function_calls.py`
 
 ## Licence
 

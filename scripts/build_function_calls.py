@@ -2,12 +2,13 @@
 """
 Mechanical generator for calculation-function Set Variable XML blocks.
 
-Reads claris-filemaker-pro's function-catalog.json and emits one Set Variable
-<Step> per function, with literal arguments type-matched to each parameter
-name. Extend SPECIAL / FORCE_EXCLUDE / FIELD_REF below when adding new
-hand-cases — do not "fix" a bad call by loosening the classifier's word list,
-that's how the substring-matching bug (see references/known-issues.md)
-happened the first time.
+Reads a FileMaker function catalog (name, format, parameters, category per
+function) and emits one Set Variable <Step> per function, with literal
+arguments type-matched to each parameter name. Extend SPECIAL / FORCE_EXCLUDE
+/ FIELD_REF below when adding new hand-cases — always match whole words when
+classifying a parameter name, never a bare substring, since short hint words
+(x, n, y, z) will otherwise match as substrings of unrelated words ("text"
+contains x; "fileNameWithExtension" contains n).
 
 Usage:
     python3 build_function_calls.py path/to/function-catalog.json > calls.json
@@ -48,9 +49,9 @@ TEXT_WORDS = {
 FIELD_WORDS = {'field', 'container', 'repeatingfield', 'nonrepeatingfield', 'tableoccurrenceorportal'}
 
 # Populate FIELD_REF with real field names from the target file before running
-# for real — these are placeholders matching the "example" table built during
-# this skill's originating session. Ask the developer for real names first
-# (see SKILL.md "Mandatory first step").
+# for real — ask the developer for real names first (see SKILL.md "Setup").
+# The placeholders below assume a table called "example" with the field set
+# documented in this skill's field-setup reference.
 FIELD_REF = {
     'container': 'example::ExampleContainer',
     'field': 'example::ExampleText',
@@ -75,22 +76,19 @@ SPECIAL = {
     'WindowNames': 'WindowNames',
     'LayoutObjectUUID': 'LayoutObjectUUID',
     'Timestamp': 'Timestamp ( Get ( CurrentDate ) ; Get ( CurrentTime ) )',
-    'GetSummary': 'GetSummary ( example::ExampleSummary ; example::ExampleNumber )',  # needs example::ExampleSummary (a real Summary field) and the found set sorted by example::ExampleNumber to be meaningful - the field exists, but ask whether the target's found set is sorted appropriately before relying on the returned value
-    'NPV': 'NPV ( example::ExampleRepeating ; .05 )',  # needs example::ExampleRepeating (a real repeating field) - exists structurally but has no populated payment values in a fresh table; syntactically valid, may return 0 until populated
+    # Requires a real Summary field (GetSummary) and a real repeating field
+    # (NPV) — see references/limitations.md. Only include these once the
+    # developer confirms the target file has what each needs.
+    'GetSummary': 'GetSummary ( example::ExampleSummary ; example::ExampleNumber )',
+    'NPV': 'NPV ( example::ExampleRepeating ; .05 )',
 }
 
-# Functions that cannot be faked with a literal in the GENERAL case. Before
-# excluding these for a SPECIFIC target file, ask whether the real objects
-# they need already exist there (see SKILL.md's mandatory prerequisite check
-# and references/known-issues.md for why this list is a starting point, not
-# a blanket rule).
+# Functions with no general-case literal substitute at all — see
+# references/limitations.md for why each one is excluded.
 FORCE_EXCLUDE = {
     'Self': 'only valid inside a Conditional Formatting calculation or an object\'s own calc - '
-            'meaningless in a script Set Variable context. CONFIRMED (2026-07-03) this is the '
-            'actual cause of a real "invalid script step" save failure: FileMaker silently '
-            'dropped the entire <Value> element on save, leaving Set Variable with a name but '
-            'no calculation. Genuinely unfakeable in this general case - there is no script-level '
-            'substitute for the object-scoped "self" reference.',
+            'meaningless in a script Set Variable context. There is no script-level substitute '
+            'for the object-scoped "self" reference.',
 }
 
 

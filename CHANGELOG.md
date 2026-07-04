@@ -1,5 +1,60 @@
 # fmp-dev-full-script — Changelog
 
+## v1.1 — 2026-07-04 — Community release (updated same day)
+
+### Fixed — 2026-07-04 accuracy pass (no version bump; v1.1 not yet on GitHub)
+
+- **Step count corrected from "225+" to 215** (description, Execution context, README) — the
+  225+ figure matched no source; the corrected claris-filemaker-pro catalog, verified against a
+  full topic_type sweep of live Claris docs, holds exactly 215 unique steps.
+- **`references/limitations.md` "no verified paste-ready structure" list rewritten.** The nine
+  named steps traced to bad entries in the source catalog: six don't exist as FileMaker Pro
+  script steps at all (Check Spelling, Log Out, Manage Add-ons, Set Window Animation, Show
+  Alert, Show/Hide Script Editor), two were misnamed real steps (Navigate to Object → Go to
+  Object; Show/Hide Status Toolbar → Show/Hide Toolbars), and only Open Preferences is a real
+  step with a genuinely unverified paste structure. Also notes that the 50 steps newly added to
+  the source catalog have not yet been paste-verified in a generated full-surface script.
+- **Delivery-method routing corrected** — two pointers sent developers to `fmp-dev-orchestrator`
+  for "the range of delivery methods"; the five methods actually live in `fmp-dev-gate`'s
+  "Delivering Code to FileMaker" section. Both now point there.
+
+### Updated — MBS Plugin repositioned as recommended, not required
+- **Setup item 1** reworded: MBS Plugin is the *recommended* way to receive the paste into Script
+  Workspace, not a hard requirement. If it isn't available, the developer defines their own
+  delivery method — pointed to `fmp-dev-orchestrator` for the range of options — and this skill
+  neither requires MBS nor takes responsibility for running whichever method the developer picks.
+- **Delivery section** restructured the same way: the combined two-`<Script>`-element paste is
+  the recommended method when MBS is present; an explicit fallback paragraph covers the
+  no-MBS case without prescribing a specific alternative.
+- Frontmatter description updated to reflect MBS as recommended rather than assumed.
+- No version bump — content clarification to the existing v1.1 release.
+
+Rewritten for public distribution. v1.0 was an internal working log from the session that built
+this skill; v1.1 restructures the same content as a clean, standalone reference.
+
+- **SKILL.md rewritten** as a guided setup + generation + delivery + verification workflow,
+  rather than a debugging narrative. All content about specific defects found in other skills
+  during development has been removed — this skill is self-contained.
+- **New `references/step-configurations.md`** — the verified configured XML for the six steps
+  whose default form isn't save-valid (`Add Account`, `Open File`,
+  `Perform Script on Server with Callback`, `Save a Copy as XML`, `Fine-Tune Model`,
+  `Go to Related Record`), presented as plain reference material.
+- **New `references/limitations.md`** — replaces `known-issues.md`. States current exclusions
+  (functions and script steps) as facts, without the development narrative.
+- **New setup requirement documented**: MBS Plugin must be installed in the target FileMaker Pro
+  instance — the delivery method depends on it to make pasted content register as real steps
+  rather than literal text.
+- **New verification step documented**: after pasting, ask the developer to save the script, copy
+  its steps back out of Script Workspace, and paste that content back for comparison against the
+  originally generated XML. This is now a standard part of the workflow, not an ad-hoc debugging
+  technique — some defects don't produce a save error at all and only show up this way.
+- **Setup flow clarified**: confirm the target table name once, then offer the complete
+  ready-to-paste field set for it, rather than a piecemeal per-object yes/no ask.
+- `scripts/build_function_calls.py` comments cleaned up — functional guidance retained (whole-word
+  parameter classification, which functions are hand-specified and why), development-session
+  narrative removed.
+- `known-issues.md` removed, superseded by `step-configurations.md` and `limitations.md`.
+
 ## v1.0 — 2026-07-03 (updated same day)
 
 ### Resolved — seventh and eighth "invalid script step" causes, plus a resolved field-level issue
