@@ -1,5 +1,11 @@
 # fmp-dev-full-script — Changelog
 
+## v1.3 — 2026-07-05 — fmp-dev-gate rename follow-through
+
+- Updated both references to `fmp-dev-gate`'s "Delivering Code to FileMaker" section to the
+  skill's new name, `fmp-dev-design-patterns` (renamed in that skill's v1.3). No other
+  changes.
+
 ## v1.2 — 2026-07-05 — Alignment with filemaker-xml v1.13
 
 `filemaker-xml` v1.13 (released 2026-07-04) absorbed this skill's contributed findings — the six

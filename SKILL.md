@@ -2,7 +2,7 @@
 compatibility: Claude Code, Claude.ai (code execution enabled)
 metadata:
   "Built and maintained": "Darrin Southern from CadenceUX"
-  version: "1.2"
+  version: "1.3"
 name: fmp-dev-full-script
 description: |
   Generates a single paste-ready FileMaker script exercising every resolvable script step and
@@ -18,7 +18,7 @@ description: |
   functions + 215 steps) — not reliably doable by hand in chat reasoning alone.
 ---
 
-# FMP Dev Full Script — Comprehensive Reference Script Generator (v1.2)
+# FMP Dev Full Script — Comprehensive Reference Script Generator (v1.3)
 
 Generates one paste-ready `fmxmlsnippet` script that exercises every resolvable FileMaker Pro
 script step and calculation function — built for regression-testing FileMaker script/function
@@ -49,7 +49,7 @@ Ask: *"Is MBS Plugin installed in the FileMaker Pro application you'll be pastin
 - **If yes**, use the delivery method described below.
 - **If no**, the developer needs to define their own method for getting the generated XML into
   Script Workspace as real steps — this skill does not require MBS and does not manage that
-  process itself. See `fmp-dev-gate`'s "Delivering Code to FileMaker" section for the range of
+  process itself. See `fmp-dev-design-patterns`'s "Delivering Code to FileMaker" section for the range of
   alternative delivery methods and their tradeoffs. Once the developer has a working delivery method, everything else
   in this skill (setup, generation, verification) applies the same way regardless of which
   method delivers the XML.
@@ -224,7 +224,7 @@ scripts at once:
 
 **If MBS Plugin isn't available**, this skill's job is still just to produce that same XML
 content — the developer defines their own way of getting it into Script Workspace as real steps
-(see `fmp-dev-gate`'s "Delivering Code to FileMaker" section for the range of delivery methods
+(see `fmp-dev-design-patterns`'s "Delivering Code to FileMaker" section for the range of delivery methods
 and how to choose between them).
 This skill doesn't require MBS and isn't responsible for running whichever delivery method the
 developer settles on; everything else in this workflow (setup, generation, verification) applies
