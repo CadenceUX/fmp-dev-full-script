@@ -1,5 +1,83 @@
 # fmp-dev-full-script — Changelog
 
+## v1.2 — 2026-07-05 — Alignment with filemaker-xml v1.13
+
+`filemaker-xml` v1.13 (released 2026-07-04) absorbed this skill's contributed findings — the six
+configured step forms and the flat-transaction rule are now documented upstream. This release
+re-points this skill at that authoritative source and picks up v1.13's new findings.
+
+### Corrected — 2026-07-05 third same-day update, from a live 750-step generation (no version
+### bump; packages rebuilt)
+
+Findings from a full end-to-end run against a fresh FM 26 file (`FullSurface.fmp12`): 54-field
+full-surface field set, 367 functions, 214 steps — 750 steps pasted, saved, and round-trip
+verified in one pass, with exactly one semantic defect.
+
+- **`PrivilegeSet` resolves by `id`, not name — step-configurations.md corrected.** A pasted
+  `Add Account` with `id="1" name="[Data Entry Only]"` came back as `[Full Access]` (ID 1 wins,
+  name loses). The earlier "resolves by name" claim had been confirmed on a round trip that
+  happened to use the matching ID. Built-in IDs documented: 1 = `[Full Access]`,
+  2 = `[Data Entry Only]`, 3 = `[Read-Only Access]`. New rule: never apply the placeholder-ID
+  pattern to `PrivilegeSet`. **Worth reporting upstream** — `filemaker-xml` v1.13 carries the
+  same by-name claim.
+- **Second Title-style mirror found: `Trigger Claris Connect Flow`'s bare `<Text>` mirrors
+  `<Flow>`.** Generated as `payload`, came back as the Flow value. Added to the SKILL.md mirror
+  rule, generalised: treat any bare sibling slot next to a named option element as a potential
+  mirror. **Also worth reporting upstream** — not documented in v1.13.
+- Two more benign FM 26 re-export normalisations observed, worth knowing for verification
+  diffs: `Restore state="False"` is added to comment, `Else`, and `Loop` steps (`Loop` also
+  gains `FlushType value="Always"`), and step names are re-cased to canonical form
+  ("Open Upload To Host" → "…to Host").
+- Generation note: `Else` is step id 69 (FileMaker healed a wrongly-generated 124 by name
+  resolution — step ids, unlike `PrivilegeSet` ids, are resolved from the name).
+
+### Updated — 2026-07-05 second same-day addition (no version bump; packages rebuilt)
+- **README installation section rewritten to the new CadenceUX install convention**
+  (cadenceux-skill-creator v1.9): leads with the double-click `.skill` method (the `.skill`
+  file is the release zip renamed; the Claude desktop app registers the extension — confirmed
+  on macOS, unverified on Windows), with the Customize → Skills zip upload as the fallback.
+  Replaces the previous instructions, which pointed at filesystem paths that aren't how skills
+  install.
+- README's setup summary aligned with the rescoped Setup step 3 (complete field-definition
+  surface, not a per-object checklist).
+
+### Updated — 2026-07-05 same-day addition (no version bump; packages rebuilt)
+- **Setup step 3 rescoped from "enough fields for the script" to the complete field-definition
+  surface.** The field set previously covered only the variants the full-surface script needs to
+  reference. It now specifies every creatable field variant — all data types, all `fieldType`s
+  (including each summary operation), every auto-enter/validation/storage variant, and the FM 26
+  `Annotation`/`DisplayNames` elements — so the finished table doubles as a complete
+  field-definition example for external use (Save as XML / DDR exports then exercise every field
+  construct an XML inspection tool needs to handle).
+- **New reference-skill dependency documented**: a FileMaker field-definition XML skill is now
+  listed in *Required reference skills* as the source for that field set — field XML should not
+  be authored from memory.
+
+### Updated
+- **"Steps that need a configured form" re-sourced**: `filemaker-xml` v1.13+ is now the
+  authoritative source for all six configured forms (`Add Account`, `Open File`,
+  `Perform Script on Server with Callback`, `Save a Copy as XML`, `Fine-Tune Model`,
+  `Go to Related Record`); `references/step-configurations.md` retained as the bundled fallback
+  for pre-1.13 sessions, verified content-identical against v1.13.
+- **New generation rule — Create PDF / Save Records as PDF bare `<Calculation>` mirrors
+  `<Title>`**: v1.13 resolved this open question via opposed-pair isolation tests. Generate the
+  bare slot with the same content as `<Title>`, never an arbitrary placeholder.
+- **Verification section — expected FM 26 normalisations documented**: the save-and-copy-back
+  comparison now lists re-export differences to ignore rather than flag —
+  `<DisableStepCollapsed state="False"/>` added to every step (except MBS missing-plugin
+  placeholders), Save a Copy as XML's unconditional `<SaXML><JSONOptions>` block, and the
+  Create PDF/Save Records as PDF Title-mirror synthesis.
+- **`step-configurations.md` Save a Copy as XML entry** now notes the unconditional `<SaXML>`
+  re-export normalisation explicitly.
+
+### Flagged
+- **Configure Machine Learning Model**: v1.13 corrected the `ConfigureCoreML` value to a nested
+  `<Operation>` element, not bare text. Any full-surface script generated against v1.12
+  skeletons carries the wrong form for this step and should be regenerated against v1.13.
+- Historical note: v1.0's claim that the flat-transaction rule was "not documented anywhere in
+  `filemaker-xml`'s spec" was true when written and is now superseded — v1.13 documents it as
+  core spec §8.1.
+
 ## v1.1 — 2026-07-04 — Community release (updated same day)
 
 ### Fixed — 2026-07-04 accuracy pass (no version bump; v1.1 not yet on GitHub)

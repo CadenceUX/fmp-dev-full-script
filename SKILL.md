@@ -2,7 +2,7 @@
 compatibility: Claude Code, Claude.ai (code execution enabled)
 metadata:
   "Built and maintained": "Darrin Southern from CadenceUX"
-  version: "1.1"
+  version: "1.2"
 name: fmp-dev-full-script
 description: |
   Generates a single paste-ready FileMaker script exercising every resolvable script step and
@@ -18,7 +18,7 @@ description: |
   functions + 215 steps) — not reliably doable by hand in chat reasoning alone.
 ---
 
-# FMP Dev Full Script — Comprehensive Reference Script Generator (v1.1)
+# FMP Dev Full Script — Comprehensive Reference Script Generator (v1.2)
 
 Generates one paste-ready `fmxmlsnippet` script that exercises every resolvable FileMaker Pro
 script step and calculation function — built for regression-testing FileMaker script/function
@@ -81,15 +81,27 @@ Offer this ready-to-paste XML, to be pasted directly into the file's Scripts lis
 ```
 Confirm it lands as a real script (not just steps) before moving on.
 
-### 3. Confirm the target table, then offer the full field set
+### 3. Confirm the target table, then offer the complete field-definition surface
 
 Ask which table the demonstration fields should live in. Once confirmed, offer the complete
-ready-to-paste field set for that table name — covering every data type (Text, Number, Date,
-Time, Timestamp, Container), both non-Normal `fieldType`s (Calculation, Summary), and enough
-validation/storage variants (Global, Repeating, Serial, Value List, Range, external Container
-storage, stored+indexed Calculation) that the full-surface script has real objects to reference
-rather than placeholders. Don't just ask "do you have a Summary field?" one at a time — confirm
-the table name once, then hand over the whole set.
+ready-to-paste field set for that table name — **every field variant FileMaker can create, not
+just the subset the full-surface script references**: all six data types (Text, Number, Date,
+Time, Timestamp, Container), all three `fieldType`s (Normal, Calculation, Summary — including
+each summary operation), every auto-enter variant (Serial, Lookup, creation/modification
+stamps, calculated auto-enter, Furigana), every validation variant (Value List, Range, Unique,
+Not Empty, calculated validation with a custom message), every storage variant (Global,
+Repeating, indexed and unindexed, external Container storage, stored and unstored
+Calculations), and the FM 26 field-level elements (`Annotation`, `DisplayNames`).
+
+The set is deliberately exhaustive for two reasons: the full-surface script gets real objects
+to reference rather than placeholders, and the finished table doubles as a complete
+field-definition example for external use — a Save as XML export or DDR of the target file then
+exercises every field construct an XML inspection tool needs to handle.
+
+Source the field XML from a dedicated FileMaker field-definition XML reference skill (see
+*Required reference skills*, below) rather than authoring it from memory. Don't just ask "do
+you have a Summary field?" one at a time — confirm the table name once, then hand over the
+whole set.
 
 ### 4. Confirm these specific objects exist, or offer to help create them
 
@@ -151,10 +163,28 @@ each needs (per the *Setup* checklist above) before excluding any of them for a 
 ### Steps that need a configured form, not the bare/minimal one
 
 A handful of steps have a bare/unconfigured form that is not valid to actually generate and
-paste — the developer's target file will reject it on save. Use the configured forms in
-`references/step-configurations.md` for: `Add Account`, `Open File`,
+paste — the developer's target file will reject it on save: `Add Account`, `Open File`,
 `Perform Script on Server with Callback`, `Save a Copy as XML`, `Fine-Tune Model`, and
 `Go to Related Record`.
+
+The FileMaker script-XML reference skill (`filemaker-xml` v1.13 and later) documents verified
+configured forms for all six natively — treat that as the authoritative, maintained source.
+`references/step-configurations.md` carries the same verified forms as a bundled fallback for
+sessions where only an older (pre-1.13) script-XML reference is available.
+
+### Create PDF / Save Records as PDF: the bare Calculation mirrors Title
+
+Both steps carry a bare `<Calculation>` slot (between `<Restore>` and the options element) that
+is not an independent setting — it is the Title, mirrored. FileMaker overwrites whichever copy
+it decides loses when they differ, so always generate the bare `<Calculation>` with the same
+content as `<Title>`, never an arbitrary placeholder. Confirmed by opposed-pair isolation tests
+for Create PDF (documented in `filemaker-xml` v1.13's `steps-pdf.md`); Save Records as PDF shows
+the identical pattern in general round trips.
+
+The same mirror mechanism exists elsewhere: `Trigger Claris Connect Flow`'s bare `<Text>` child
+came back holding `<Flow>`'s value on a live round trip (2026-07-05) — generate them identical
+too. Treat any bare sibling slot next to a named option element as a potential mirror, not an
+independent setting.
 
 ### Transaction steps must be flat and unconditional
 
@@ -220,7 +250,18 @@ this confirmation step every time:
    that didn't resolve, a value that got dropped, an element FileMaker normalised differently)
    will show up in this comparison. This is a more reliable check than watching for a save error,
    since some defects don't produce an error message at all.
-5. If anything differs unexpectedly, fix the specific step and repeat the round trip — don't
+5. **Ignore the known FM 26 normalisations** — these differences are FileMaker's own re-export
+   behaviour, not defects (all confirmed in `filemaker-xml` v1.13):
+   - `<DisableStepCollapsed state="False"/>` added to **every step** (the one exception: an MBS
+     step pasted as a missing-plugin placeholder doesn't receive it). On a 600-step script this
+     touches every line of the diff — filter it out before comparing.
+   - Save a Copy as XML: a `<SaXML><JSONOptions>` block is emitted **unconditionally**, even
+     when `SpecifyJSONOptions` is `False` and the generated step had no `<SaXML>` at all.
+   - Create PDF / Save Records as PDF: the bare `<Calculation>` and `<Title>` come back
+     matching each other — if they were generated identical (as they should be, see the
+     generation rule above), no diff appears; if FileMaker synthesised a missing `<Title>`,
+     that's the mirror mechanism, not data loss.
+6. If anything differs unexpectedly, fix the specific step and repeat the round trip — don't
    assume a clean paste and a successful save mean everything is correct.
 
 ---
@@ -246,6 +287,8 @@ rules — it depends on:
 - A FileMaker function and script-step reference skill, for the full function/step roster.
 - A FileMaker script-XML skill, for verified paste-ready XML skeletons and paste-format rules
   (the placeholder-ID pattern, element ordering, CDATA wrapping, and similar structural rules).
+- A FileMaker field-definition XML skill, for the complete ready-to-paste field set offered in
+  Setup step 3 — every data type, `fieldType`, auto-enter, validation, and storage variant.
 
 Read those skills' own documentation before generating anything — this skill assumes their
 content is available, not bundled here.

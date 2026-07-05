@@ -4,6 +4,11 @@ Verified, paste-ready configured XML for script steps whose default/minimal form
 generate and paste — the target file will reject it on save. Use these forms whenever including
 these steps in a generated script; do not use a bare/unconfigured form for any of them.
 
+> **Note:** `filemaker-xml` v1.13 and later documents all six configured forms natively (this
+> skill's development contributed them upstream) — prefer that skill's copy as the maintained,
+> authoritative source. This file is the bundled fallback for sessions where only a pre-1.13
+> script-XML reference is available. Content verified identical against v1.13 on 2026-07-05.
+
 ---
 
 ## Add Account (id 134)
@@ -25,10 +30,15 @@ these steps in a generated script; do not use a bare/unconfigured form for any o
 ```
 Element order: `ChgPwdOnNextLogin` → `AccountName` → `Password` → `PrivilegeSet` → `AddAccount`.
 `AccountName`/`Password` use the standard `<Calculation><![CDATA[...]]></Calculation>` wrapper.
-`PrivilegeSet` is self-closing with `id`/`name` attributes — FileMaker's three built-in privilege
-sets (`[Full Access]`, `[Data Entry Only]`, `[Read-Only Access]`) resolve by name, including the
-literal square brackets, in any file, since they're FileMaker constants rather than
-solution-specific schema.
+
+**`PrivilegeSet` resolves by `id`, not by name** — corrected 2026-07-05 by live round-trip: a
+step pasted with `id="1" name="[Data Entry Only]"` came back as `[Full Access]`, the set whose
+ID is 1; the name attribute lost. An earlier round-trip appeared to confirm name resolution
+only because it used the matching ID. The built-in IDs are stable FileMaker constants —
+`id="1"` = `[Full Access]`, `id="2"` = `[Data Entry Only]`, `id="3"` = `[Read-Only Access]` —
+so use the correct ID for the set you intend (as the form above does with `id="2"`); never
+substitute a placeholder ID into `PrivilegeSet` the way the general placeholder-ID pattern
+allows for `Table`/`Layout`/`Script` references.
 
 ---
 
@@ -79,6 +89,11 @@ reference — the main script is a bare `<Script id name>` sibling, but the call
 `<UniversalPathList>` is a **direct** `<Step>` child (bare, `file:` prefix) — not wrapped in
 `<FileReference>` the way `Open File`'s destination is. These two "file destination" steps use
 different patterns; don't assume one implies the other.
+
+**Expected re-export difference (FM 26):** FileMaker emits a `<SaXML><JSONOptions>` block on
+copy-back **unconditionally** — even with `SpecifyJSONOptions` set to `False` and no `<SaXML>`
+in the pasted XML. The minimal form above still pastes and saves; seeing `<SaXML>` appear in the
+verification round trip is normalisation, not a defect (confirmed in `filemaker-xml` v1.13).
 
 ---
 

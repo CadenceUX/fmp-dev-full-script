@@ -15,9 +15,10 @@ When this skill is active, Claude will:
 
 - **Guide you through setup first** — confirming MBS Plugin (recommended for delivery, not
   required — see `fmp-dev-orchestrator` for alternatives), creating a blank companion script for
-  `Perform Script`-type steps to reference safely, and confirming the target table has the schema
-  objects (Summary field, repeating field, relationship, value list, container field, layout) a
-  full-coverage script needs — offering ready-to-paste XML for anything missing
+  `Perform Script`-type steps to reference safely, offering the complete ready-to-paste
+  field-definition surface (every creatable field variant, so the finished table doubles as a
+  field-XML example for external inspection tools), and confirming the remaining schema objects
+  (relationship, value list, layout, AI account) a full-coverage script needs
 - Generate one `Set Variable` step per calculation function, using type-matched literal
   arguments built by tokenizing each parameter name
 - Generate one script step per resolvable step type, using verified configured forms for the
@@ -42,11 +43,13 @@ and script steps excluded from a general-case script, and why.
 
 ## Installation
 
-1. Download the latest release zip
-2. Unzip and place the `fmp-dev-full-script` folder in your Claude skills directory:
-   - **macOS:** `~/Library/Application Support/Claude/skills/`
-   - **Windows:** `%APPDATA%\Claude\skills\`
-3. Restart Claude or reload skills
+**Simplest (macOS):** double-click `fmp-dev-full-script-vX.Y.skill` — the Claude desktop app
+registers the `.skill` extension and opens its skill-install flow directly. The `.skill` file
+is the release zip with the extension renamed, nothing more. (Windows desktop is unverified for
+this file association; use the fallback there.)
+
+**Fallback (web app, or any platform):** in Claude, go to Customize → Skills, click **+**, and
+upload the release `.zip`.
 
 ## Execution context
 
